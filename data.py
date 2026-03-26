@@ -1,3 +1,6 @@
+from collections import Counter
+
+
 def text_to_input(words, context_size, dic):
     contexts = []
     targets = []
@@ -16,10 +19,12 @@ def text_to_input(words, context_size, dic):
 
 def load_data(filename, context_size):
     with open(filename) as text:
-        words = text.read().split()
+        words = text.read().lower().split()
 
+    counts = Counter(words)
+
+    words = [word if counts[word] >= 5 else "<UNK>" for word in words]
     dic = {word: i for i, word in enumerate(list(set(words)))}
-    # decoding = {i: word for word, i in dic.items()}
-    #
+
     input_context, targets = text_to_input(words, context_size, dic)
     return input_context, targets, dic
