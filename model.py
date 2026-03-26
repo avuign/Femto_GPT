@@ -19,7 +19,7 @@ class Femto_Chatbot(nn.Module):
 
     def attention_scores_matrix(self, Q_vector, K_vector):
         n = len(Q_vector)
-        matrix = torch.zeros(shape=(n, n), dtype=torch.float32)
+        matrix = torch.zeros(n, n, dtype=torch.float32)
 
         for i in range(0, n):
             for j in range(0, i + 1):
@@ -35,9 +35,9 @@ class Femto_Chatbot(nn.Module):
 
         n = len(tokens)
 
-        Q_vector = torch.zeros(shape=(n, self.embedding_dim), dtype=torch.float32)
-        K_vector = torch.zeros(shape=(n, self.embedding_dim), dtype=torch.float32)
-        V_vector = torch.zeros(shape=(n, self.embedding_dim), dtype=torch.float32)
+        Q_vector = torch.zeros(n, self.embedding_dim, dtype=torch.float32)
+        K_vector = torch.zeros(n, self.embedding_dim, dtype=torch.float32)
+        V_vector = torch.zeros(n, self.embedding_dim, dtype=torch.float32)
 
         for i in range(0, n):
             x = tokens[i]
