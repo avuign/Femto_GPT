@@ -19,8 +19,11 @@ def train(model, X, Y, num_epochs, batch_size, lr):
             batch_X = X[i : i + batch_size]
             batch_Y = Y[i : i + batch_size]
 
-            logits = model(batch_X)[:, -1, :]
-            loss = nn.CrossEntropyLoss()(logits, batch_Y)
+            logits = model(batch_X)
+            loss = nn.CrossEntropyLoss()(
+                logits.view(-1, voc_size),  # (batch*seq, voc)
+                batch_Y.view(-1),  # (batch*seq,)
+            )
 
             optimizer.zero_grad()
             loss.backward()
@@ -38,7 +41,7 @@ if __name__ == "__main__":
     print(f"Data loaded: {len(X)} examples, vocab size: {len(dic)}")
 
     voc_size = len(dic)
-    model = Femto_Chatbot(voc_size, EMBEDDING_DIM)
+    model = Femto_Chatbot(voc_size, CONTEXT_SIZE, EMBEDDING_DIM)
 
     print("Model created, starting training...")
     train(model, X, Y, NUM_EPOCHS, BATCH_SIZE, LR)

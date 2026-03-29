@@ -1,30 +1,49 @@
-from collections import Counter
+import re
+
+import torch
+import torch.nn as nn
 
 
-def text_to_input(words, context_size, dic):
-    contexts = []
+class Tokenizer:
+    def __init__(self, dic):
+        self.word_to_int = dic
+        self.int_to_word = {int: word for word, int in dic.items()}
+
+    def encode(self, text):
+        words = [
+            word if word in self.word_to_int else "<UNK>"
+            for word in text_to_words(text)
+        ]
+        ids = [self.word_to_int[word] for word in words]
+        return ids
+
+    def decode(self, ids):
+        words = [self.int_to_word[id] for id in ids]
+        text = " ".join(words)
+        text = re.sub(r'\s+([,.?!"()\'])“', r"\1", text)
+        return text
+
+
+def inputs_and_targets(text, context_size, tokenizer, stride=1):
+    encoded_text = tokenizer.encode(text)
+    inputs = []
     targets = []
-    for i in range(0, len(words) - context_size):
-        window = words[i : i + context_size]
-        target = words[i + context_size]
-
-        context = []
-        for word in window:
-            context.append(dic[word])
-
-        contexts.append(context)
-        targets.append(dic[target])
-    return contexts, targets
+    for i in range(0, len(encoded_text) - context_size - 1, stride):
+        input = encoded_text[i : i + context_size]
+        inputs.append(input)
+        target = encoded_text[i + 1 : i + context_size + 1]
+        targets.append(target)
+    return torch.tensor(inputs), torch.tensor(targets)
 
 
-def load_data(filename, context_size):
-    with open(filename) as text:
-        words = text.read().lower().split()
+def text_to_words(text):
+    result = re.split(r'([,.:;?_!"()\']|--|\s)', text)
+    result = [item.strip() for item in result if item.strip()]
+    return result
 
-    counts = Counter(words)
 
-    words = [word if counts[word] >= 5 else "<UNK>" for word in words]
-    dic = {word: i for i, word in enumerate(list(set(words)))}
-
-    input_context, targets = text_to_input(words, context_size, dic)
-    return input_context, targets, dic
+def dic(words):
+    special_words = ["<UNK>", "<ENDOFTEXT>"]
+    words.extend(special_words)
+    word_to_int = {word: i for i, word in enumerate(sorted(list(set(words))))}
+    return word_to_int

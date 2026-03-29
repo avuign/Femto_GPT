@@ -12,7 +12,7 @@ def generate_new_sentences():
     voc_size = len(dic)
     decoding = {i: word for word, i in dic.items()}
 
-    model = Femto_Chatbot(voc_size, EMBEDDING_DIM)
+    model = Femto_Chatbot(voc_size, CONTEXT_SIZE, EMBEDDING_DIM)
     model.load_state_dict(torch.load("femto_chatbot.pt"))
 
     sentence = X[0]
