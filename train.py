@@ -5,15 +5,6 @@ from data import Tokenizer, dic, inputs_and_targets, text_to_words
 from model import Femto_GPT
 
 
-def calc_loss_batch(input_batch, target_batch, model, device):
-    input_batch, target_batch = input_batch.to(device), target_batch.to(device)
-    logits = model(input_batch)
-    loss = torch.nn.functional.cross_entropy(
-        logits.flatten(0, 1), target_batch.flatten()
-    )
-    return loss
-
-
 def train(model, X, Y, voc_size, num_epochs, batch_size, lr):
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -65,7 +56,6 @@ if __name__ == "__main__":
         DROP_RATE,
         QKV_BIAS,
     )
-    model.eval()
 
     print("Model created, starting training...")
     train(model, X, Y, tokenizer.voc_size, NUM_EPOCHS, BATCH_SIZE, LR)
